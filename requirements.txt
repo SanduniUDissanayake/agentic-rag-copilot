@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+python-dotenv
+requests
+streamlit
+pymupdf
+llama-index
+llama-index-embeddings-huggingface
+llama-index-llms-groq
+llama-index-llms-google-genai
+ragas
+datasets
