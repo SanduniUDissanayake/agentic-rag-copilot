@@ -3,11 +3,13 @@ import os
 import requests
 import streamlit as st
 
-   API_URL = os.getenv("API_URL", "http://localhost:8001")
+API_URL = os.getenv("API_URL", "http://localhost:8001")
+st.set_page_config(page_title="Annual Report Copilot", layout="wide")
+
 
 def esc(text):
     return text.replace("$", "\\$")
-st.set_page_config(page_title="Annual Report Copilot", layout="wide")
+
 
 st.title("Annual Report Copilot")
 st.caption("An AI agent that searches real company reports and calculates with a tool instead of guessing.")
@@ -66,4 +68,3 @@ if question:
             st.rerun()
         except Exception as e:
             st.error(f"Request failed: {e}")
-            
