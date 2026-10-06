@@ -10,6 +10,14 @@ from llama_index.llms.google_genai import GoogleGenAI
 from llama_index.llms.groq import Groq as GroqLLM
 
 from tools import calculate
+from llama_index.core.vector_stores import MetadataFilter, MetadataFilters
+
+COMPANY_FILES = {
+    "BHP": "260818_bhpannualreport2026.pdf",
+    "CBA": "CBA-2026-Annual-Report.pdf",
+    "Telstra": "telstra-financial-results-and-annual-report-for-the-year-ended-30-jun-2026.pdf",
+    "Woolworths": "woolworths-2026-annual-report.pdf",
+}
 
 load_dotenv()
 _index = None
@@ -33,20 +41,37 @@ def get_llm(provider: str):
 
 def build_agent(provider: str):
     llm = get_llm(provider)
-    query_engine = get_index().as_query_engine(llm=llm, similarity_top_k=5)
+    index = get_index()
+    query_engine = index.as_query_engine(llm=llm, similarity_top_k=5)
     doc_tool = QueryEngineTool.from_defaults(
         query_engine=query_engine,
         name="document_search",
-        description="Searches the BHP, CBA, Telstra and Woolworths 2026 annual reports.",
+        description="Searches all four annual reports (BHP, CBA, Telstra, Woolworths) at once.",
     )
+
+    def company_search(company: str, question: str) -> str:
+        """Search ONE company's annual report only. company must be exactly one of:
+        BHP, CBA, Telstra, Woolworths. Use this for comparisons, once per company."""
+        key = next((k for k in COMPANY_FILES if k.lower() == company.strip().lower()), None)
+        if key is None:
+            return "Unknown company. Choose from: " + ", ".join(COMPANY_FILES)
+        filters = MetadataFilters(
+            filters=[MetadataFilter(key="file_name", value=COMPANY_FILES[key])]
+        )
+        engine = index.as_query_engine(llm=llm, similarity_top_k=3, filters=filters)
+        return str(engine.query(question))
+
+    company_tool = FunctionTool.from_defaults(fn=company_search, name="company_search")
     calc_tool = FunctionTool.from_defaults(fn=calculate, name="calculator")
     return FunctionAgent(
-        tools=[doc_tool, calc_tool],
+        tools=[doc_tool, company_tool, calc_tool],
         llm=llm,
         system_prompt=(
-            "You are a financial analyst assistant. Use document_search to find facts "
-            "from the annual reports. Use calculator for any arithmetic on retrieved "
-            "numbers. Never do math in your head. Say which company each figure is from."
+            "You are a financial analyst assistant. Use document_search for general "
+            "questions about the reports. For questions that compare or involve several "
+            "companies, call company_search once per company. Use calculator for any "
+            "arithmetic on retrieved numbers. Never do math in your head. Say which "
+            "company each figure is from."
         ),
     )
 

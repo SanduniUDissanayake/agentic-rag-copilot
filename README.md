@@ -46,11 +46,12 @@ These numbers come from a small sample and should be read as a smoke test, not a
 
 ## Known limitations
 
-- Basic top-k retrieval can favour one company's report on broad cross-company questions. Per-company filtering or reranking would address this.
+- Broad cross-company questions can still favour one report in the general search. A per-company search tool (metadata-filtered) lets the agent query each report separately for comparisons. Reranking would improve this further.
+- Retrieval can return a nearby but wrong passage. In testing, a "registered office" question for BHP returned the New Zealand share registry address instead of the head office, while rewording the question to match the report's own wording returned the correct one. The UI shows tool calls and source passages so this is visible. Reranking and answer-grounding checks are the next step.
 - The "source passages" panel in the UI runs a separate retrieval for the same question, so it shows relevant context but not necessarily the exact passages the agent used.
+- The evaluation set is small (4 questions), so the RAGAS results are a smoke test, not a benchmark.
 - No authentication or rate limiting on the API yet.
 - Dockerfile, image publishing and cloud deployment are not done yet.
-
 ## Run locally
 
 ```
