@@ -1,6 +1,6 @@
 # Annual Report Copilot
 
-[![CI/CD](https://github.com/SanduniUDissanayake/agentic-rag-copilot/actions/workflows/ci.yml/badge.svg)](https://github.com/SanduniUDissanayake/agentic-rag-copilot/actions)
+[![CI/CD](https://github.com/SanduniUDissanayake/agentic-rag-copilot/actions/workflows/ci.yml/badge.svg?branch=main&event=push)](https://github.com/SanduniUDissanayake/agentic-rag-copilot/actions)
 
 An AI agent that answers questions about real company annual reports. It searches the documents for facts and uses a calculator tool for arithmetic, so numbers are computed rather than guessed.
 
